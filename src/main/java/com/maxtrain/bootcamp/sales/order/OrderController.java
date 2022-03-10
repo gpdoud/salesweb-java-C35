@@ -26,14 +26,44 @@ public class OrderController {
 		return new ResponseEntity<Orders>(Orders.get(), HttpStatus.OK);
 	}
 	
+	@GetMapping("reviews")
+	public ResponseEntity<Iterable<Orders>> getOrdersInReview() {
+		var orders = ordRepo.findByStatus("REVIEW");
+		return new ResponseEntity<Iterable<Orders>>(orders, HttpStatus.OK);
+	}
+	
 	@PostMapping
 	public ResponseEntity<Orders> postOrder(@RequestBody Orders order) {
 		if(order == null || order.getId() != 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		order.setStatus("NEW");
 		var ord = ordRepo.save(order);
 		return new ResponseEntity<Orders>(ord, HttpStatus.CREATED);
 	}
+	
+	@SuppressWarnings("rawtypes")
+	@PutMapping("review/{id}")
+	public ResponseEntity reviewOrder(@PathVariable int id, @RequestBody Orders order) {
+		var statusValue = (order.getTotal() <= 50) ? "APPROVED" : "REVIEW";
+		order.setStatus(statusValue);
+		return putOrder(id, order);
+	}
+		
+	@SuppressWarnings("rawtypes")
+	@PutMapping("approve/{id}")
+	public ResponseEntity approveOrder(@PathVariable int id, @RequestBody Orders order) {
+		order.setStatus("APPROVED");
+		return putOrder(id, order);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@PutMapping("reject/{id}")
+	public ResponseEntity rejectOrder(@PathVariable int id, @RequestBody Orders order) {
+		order.setStatus("REJECTED");
+		return putOrder(id, order);
+	}
+
 	
 	@SuppressWarnings("rawtypes")
 	@PutMapping("{id}")

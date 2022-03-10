@@ -28,6 +28,15 @@ public class CustomerController {
 		return new ResponseEntity<Customer>(customer.get(), HttpStatus.OK);
 	}
 	
+	@GetMapping("code/{code}")
+	public ResponseEntity<Customer> getCustomerByCode(@PathVariable String code) {
+		var cust = custRepo.findByCode(code);
+		if(cust.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Customer>(cust.get(), HttpStatus.OK);
+	}
+	
 	@PostMapping
 	public ResponseEntity<Customer> postCustomer(@RequestBody Customer customer) {
 		if(customer == null || customer.getId() != 0) {
